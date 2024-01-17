@@ -1,3 +1,3 @@
-module github.com/Gaper8/Netpbm
+module netpbm
 
 go 1.21.1
