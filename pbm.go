@@ -1,4 +1,4 @@
-package netpbm
+package Netpbm
 
 import (
 	"bufio"
@@ -65,14 +65,49 @@ func ReadPBM(filename string) (*PBM, error) {
 				}
 				line++
 			}
-		}
-		if PBMtwo.magicNumber == "P4" {
+			if PBMtwo.magicNumber == "P4" {
+				bytenumber := 0
 
+				if PBMtwo.width%8 == 0 {
+					bytenumber = (PBMtwo.width / 8)
+				} else {
+					bytenumber = (PBMtwo.width / 8) + 1
+				}
+				padding := (bytenumber * 8) - PBMtwo.width
+				binary := ToBinary(scanner.Text(), bytenumber, padding)
+				colonne := 0
+				linev3 := 0
+				for _, linev2 := range binary {
+					if colonne == PBMtwo.width {
+						linev3++
+						colonne = 0
+					}
+					if linev2 == '1' {
+						PBMtwo.data[linev3][colonne] = true
+					} else {
+						PBMtwo.data[linev3][colonne] = false
+					}
+					colonne++
+				}
+			}
 		}
 	}
 	fmt.Printf("%+v\n", PBMtwo)
 	return &PBM{PBMtwo.data, PBMtwo.width, PBMtwo.height, PBMtwo.magicNumber}, nil
 
+}
+
+func ToBinary(test string, bytenumber, padding int) string {
+	var result string = ""
+
+	for i := 0; i < len(test); i++ {
+		test := fmt.Sprintf("%08b", test[i])
+		if i != 0 && (i+1)%bytenumber == 0 {
+			test = test[:len(test)-padding]
+		}
+		result += test
+	}
+	return result
 }
 
 func (pbm *PBM) Size() (int, int) {

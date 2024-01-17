@@ -1,11 +1,15 @@
 package main
 
 import (
-	"netpbm"
+	"Netpbm"
 )
 
 func main() {
 
-	netpbm.ReadPBM("testP4.pbm")
+	pgm, _ := Netpbm.ReadPBM("fichierp1.pbm")
+
+	pgm.SetMagicNumber("P4")
+
+	pgm.Save("output.pbm")
 
 }
