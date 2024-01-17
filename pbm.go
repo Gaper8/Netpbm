@@ -67,83 +67,9 @@ func ReadPBM(filename string) (*PBM, error) {
 			}
 		}
 		if PBMtwo.magicNumber == "P4" {
-			ascii := 0
-			n := 0
-			for n <= PBMtwo.width {
-				ascii += 1
-				n += 8
-			}
 
-			data3 := make([][]int, PBMtwo.height)
-			for g := range data3 {
-				data3[g] = make([]int, ascii)
-			}
-
-			chars := make([][]rune, PBMtwo.height)
-			for g := range chars {
-				chars[g] = make([]rune, ascii)
-			}
-
-			var bin string
-
-			datarune := make([][]string, PBMtwo.height)
-			for m := range datarune {
-				datarune[m] = make([]string, ascii)
-			}
-
-			scanner.Scan()
-			a := scanner.Bytes()
-			//padding := 1
-			x := 0
-			y := 0
-
-			for g := 0; g < len(a); g++ {
-				format := fmt.Sprintf("%s%d%s", "%0", 8, "b")
-				data3[y][x] = int(a[g])
-
-				bin = fmt.Sprintf(format, data3[y][x])
-
-				datarune[y][x] = bin
-
-				x++
-				if x == ascii {
-					x = 0
-					y = y + 1
-				}
-			}
-
-			datastring := make([]string, PBMtwo.height)
-
-			for i := 0; i < PBMtwo.height; i++ {
-				for j := 0; j < ascii; j++ {
-					datastring[i] = datastring[i] + datarune[i][j]
-				}
-			}
-
-			datarune_padding := make([][]rune, PBMtwo.height)
-			for m := range datarune_padding {
-				datarune_padding[m] = make([]rune, PBMtwo.width)
-			}
-
-			for i := 0; i < PBMtwo.height; i++ {
-				l := []rune(datastring[i])
-				for j := 0; j < PBMtwo.width; j++ {
-					datarune_padding[i][j] = l[j]
-				}
-			}
-
-			for i := 0; i < PBMtwo.height; i++ {
-				for j := 0; j < PBMtwo.width; j++ {
-					if datarune_padding[i][j] == '0' {
-						PBMtwo.data[i][j] = false
-					} else if datarune_padding[i][j] == '1' {
-						PBMtwo.data[i][j] = true
-					}
-				}
-			}
 		}
 	}
-
 	fmt.Printf("%+v\n", PBMtwo)
 	return &PBM{PBMtwo.data, PBMtwo.width, PBMtwo.height, PBMtwo.magicNumber}, nil
 
