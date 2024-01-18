@@ -12,7 +12,7 @@ type PPM struct {
 	data          [][]Pixel
 	width, height int
 	magicNumber   string
-	max           int
+	max           uint8
 }
 
 type Pixel struct {
@@ -59,7 +59,11 @@ func ReadPPM(filename string) (*PPM, error) {
 				PPMfor.data[i] = make(([]Pixel), PPMfor.width)
 			}
 		} else if !booleaheight {
-			PPMfor.max, _ = strconv.Atoi(scanner.Text())
+			max, err := strconv.Atoi(scanner.Text())
+			if err != nil {
+				return nil, err
+			}
+			PPMfor.max = uint8(max)
 			booleaheight = true
 		} else {
 
@@ -154,7 +158,7 @@ func (ppm *PPM) SetMagicNumber(magicNumber string) {
 }
 
 func (ppm *PPM) SetMaxValue(maxValue uint8) {
-	ppm.max = int(maxValue)
+	ppm.max = maxValue
 }
 
 func (ppm *PPM) Rotate90CW() {
@@ -266,4 +270,60 @@ func (ppm *PPM) DrawLine(p1, p2 Point, color Pixel) {
 			break
 		}
 	}
+}
+
+func (ppm *PPM) DrawRectangle(p1 Point, width, height int, color Pixel) {
+}
+
+func (ppm *PPM) DrawFilledRectangle(p1 Point, width, height int, color Pixel) {
+}
+
+func (ppm *PPM) DrawCircle(center Point, radius int, color Pixel) {
+	// ...
+}
+
+func (ppm *PPM) DrawFilledCircle(center Point, radius int, color Pixel) {
+	// ...
+}
+
+func (ppm *PPM) DrawTriangle(p1, p2, p3 Point, color Pixel) {
+	// ...
+}
+
+func (ppm *PPM) DrawFilledTriangle(p1, p2, p3 Point, color Pixel) {
+	// ...
+}
+
+func (ppm *PPM) DrawPolygon(points []Point, color Pixel) {
+	// ...
+}
+
+func (ppm *PPM) DrawFilledPolygon(points []Point, color Pixel) {
+	// ...
+}
+
+func (ppm *PPM) DrawKochSnowflake(n int, start Point, width int, color Pixel) {
+	// N is the number of iterations.
+	// Koch snowflake is a 3 times a Koch curve.
+	// Start is the top point of the snowflake.
+	// Width is the width all the lines.
+	// Color is the color of the lines.
+	// ...
+}
+
+func (ppm *PPM) DrawSierpinskiTriangle(n int, start Point, width int, color Pixel) {
+	// N is the number of iterations.
+	// Start is the top point of the triangle.
+	// Width is the width all the lines.
+	// Color is the color of the lines.
+	// ...
+}
+
+func (ppm *PPM) DrawPerlinNoise(color1 Pixel, color2 Pixel) {
+	// Color1 is the color of 0.
+	// Color2 is the color of 1.
+}
+
+func (ppm *PPM) KNearestNeighbors(newWidth, newHeight int) {
+	// ...
 }

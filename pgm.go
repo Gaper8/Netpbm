@@ -12,7 +12,7 @@ type PGM struct {
 	data          [][]uint8
 	width, height int
 	magicNumber   string
-	max           int
+	max           uint8
 }
 
 func ReadPGM(filename string) (*PGM, error) {
@@ -55,7 +55,11 @@ func ReadPGM(filename string) (*PGM, error) {
 				PGMthree.data[i] = make(([]uint8), PGMthree.width)
 			}
 		} else if !booleafive {
-			PGMthree.max, _ = strconv.Atoi(scanner.Text())
+			max, err := strconv.Atoi(scanner.Text())
+			if err != nil {
+				return nil, err
+			}
+			PGMthree.max = uint8(max)
 			booleafive = true
 		} else {
 
@@ -66,13 +70,6 @@ func ReadPGM(filename string) (*PGM, error) {
 					PGMthree.data[lineone][i] = uint8(value)
 				}
 				lineone++
-			}
-		}
-		if PGMthree.magicNumber == "P5" {
-
-		}
-	}
-
 	fmt.Printf("%+v\n", PGMthree)
 	return &PGM{PGMthree.data, PGMthree.width, PGMthree.height, PGMthree.magicNumber, PGMthree.max}, nil
 
@@ -95,16 +92,20 @@ func (pgm *PGM) Set(x, y int, value uint8) {
 }
 
 func (pgm *PGM) Save(filename string) error {
-	file, _ := os.Create(filename)
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
 	defer file.Close()
 
 	fmt.Fprintf(file, "%s\n%d %d\n%d\n", pgm.magicNumber, pgm.width, pgm.height, pgm.max)
 
-	for _, i := range pgm.data {
-		for _, j := range i {
-			fmt.Fprintf(file, "%d ", j)
+	for _, row := range pgm.data {
+		if pgm.magicNumber == "P2" {
+			for _, pixel := range row {
+				fmt.Fprintf(file, "%d ", pixel)
+			}
 		}
-		fmt.Fprintln(file)
 	}
 	return nil
 }
@@ -146,7 +147,7 @@ func (pgm *PGM) SetMagicNumber(magicNumber string) {
 }
 
 func (pgm *PGM) SetMaxValue(maxValue uint8) {
-	pgm.max = int(maxValue)
+	pgm.max = maxValue
 }
 
 func (pgm *PGM) Rotate90CW() {
