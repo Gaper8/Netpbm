@@ -121,11 +121,13 @@ func ToBinary(test string, bytenumber, padding int) string {
 	return result
 }
 
+// I make a loop that goes through each element of my test variable. My test variable contains the conversion of each character into 8 bytes of binary. Then I check which byte needs padding, for that I check which byte is multiple of bytenumber. I finish by modifying my test variable so that it no longer contains the padding.
+
 func (pbm *PBM) Size() (int, int) {
-	width, height := pbm.height, pbm.width
-	fmt.Printf("Largeur: %d, Hauteur: %d\n", width, height)
-	return width, height
+	return pbm.width, pbm.height
 }
+
+// The size function has a pointer to the PBM structure, so to return the width and height, I just have to return the width and height of the PBM structure.
 
 func (pbm *PBM) At(x, y int) bool {
 	if x < 0 || x > pbm.width || y < 0 || y > pbm.height {
@@ -158,8 +160,23 @@ func (pbm *PBM) Save(filename string) error {
 			}
 			fmt.Fprintln(file)
 		}
+	} else if pbm.magicNumber == "P4" {
+
+		for _, row := range pbm.data {
+			bytes := make([]byte, (pbm.width+7)/8)
+			for i, pixel := range row {
+				if pixel {
+					bitIndex := i % 8
+					byteIndex := i / 8
+					bytes[byteIndex] |= 1 << uint(7-bitIndex)
+				}
+			}
+			file.Write(bytes)
+		}
 	}
 
+	return nil
+}
 
 func (pbm *PBM) Invert() {
 	for i := 0; i < pbm.height; i++ {

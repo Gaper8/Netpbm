@@ -70,6 +70,21 @@ func ReadPGM(filename string) (*PGM, error) {
 					PGMthree.data[lineone][i] = uint8(value)
 				}
 				lineone++
+
+			}
+			if PGMthree.magicNumber == "P5" {
+				rawData := scanner.Bytes()
+				dataIndex := 0
+				for y := 0; y < PGMthree.height; y++ {
+					for x := 0; x < PGMthree.width; x++ {
+						PGMthree.data[y][x] = rawData[dataIndex]
+						dataIndex++
+					}
+				}
+				break
+			}
+		}
+	}
 	fmt.Printf("%+v\n", PGMthree)
 	return &PGM{PGMthree.data, PGMthree.width, PGMthree.height, PGMthree.magicNumber, PGMthree.max}, nil
 
@@ -105,8 +120,12 @@ func (pgm *PGM) Save(filename string) error {
 			for _, pixel := range row {
 				fmt.Fprintf(file, "%d ", pixel)
 			}
+			fmt.Fprintln(file)
+		} else if pgm.magicNumber == "P5" {
+			file.Write(row)
 		}
 	}
+
 	return nil
 }
 
