@@ -81,7 +81,7 @@ func ReadPBM(filename string) (*PBM, error) {
 				} else {
 					bytenumber = (PBMtwo.width / 8) + 1
 				}
-				//Here is the second condition for the p4 format. I start by checking how many bytes I need to store a line of my image.
+				//Here is the second condition for the p4 format. I start by checking how many databyte I need to store a line of my image.
 				padding := (bytenumber * 8) - PBMtwo.width
 				binary := ToBinary(scanner.Text(), bytenumber, padding)
 				colonne := 0
@@ -121,7 +121,7 @@ func ToBinary(test string, bytenumber, padding int) string {
 	return result
 }
 
-// I make a loop that goes through each element of my test variable. My test variable contains the conversion of each character into 8 bytes of binary. Then I check which byte needs padding, for that I check which byte is multiple of bytenumber. I finish by modifying my test variable so that it no longer contains the padding.
+// I make a loop that goes through each element of my test variable. My test variable contains the conversion of each character into 8 databyte of binary. Then I check which byte needs padding, for that I check which byte is multiple of bytenumber. I finish by modifying my test variable so that it no longer contains the padding.
 
 func (pbm *PBM) Size() (int, int) {
 	return pbm.width, pbm.height
@@ -169,18 +169,18 @@ func (pbm *PBM) Save(filename string) error {
 	} else if pbm.magicNumber == "P4" {
 
 		for _, a := range pbm.data {
-			bytes := make([]byte, (pbm.width+7)/8)
+			databyte := make([]byte, (pbm.width+7)/8)
 			for i, pixel := range a {
 				if pixel {
-					bitIndex := i % 8
-					byteIndex := i / 8
-					bytes[byteIndex] |= 1 << uint(7-bitIndex)
+					byte1 := i % 8
+					byte2 := i / 8
+					databyte[byte2] |= 1 << uint(7-byte1)
 				}
 			}
-			file.Write(bytes)
+			file.Write(databyte)
 		}
 	}
-
+	// If the magic number is P4, I browse my data. I start by browsing my data and I also create a byte array to store the compact binary values of the P4 format. Then I start by calculating which bit will be modified and write to the file. The next line is used to know which byte the bit will go into. Finally I modify the bytes in the table.
 	return nil
 }
 
