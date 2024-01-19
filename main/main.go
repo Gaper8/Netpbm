@@ -6,9 +6,9 @@ import (
 
 func main() {
 
-	pgm, _ := Netpbm.ReadPGM("testP5.pgm")
+	pgm, _ := Netpbm.ReadPGM("testP2.pgm")
 
-	pgm.SetMagicNumber("P5")
+	pgm.SetMagicNumber("P2")
 
 	pgm.Save("outputpgm.pgm")
 

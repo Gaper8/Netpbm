@@ -99,7 +99,7 @@ func ReadPBM(filename string) (*PBM, error) {
 					}
 					colonne++
 				}
-				// Then I store each converted element that is in binary. If my column variable is equal to my width, then that moves to the next row, and I reset column to zero for the rest. Finally when there is a 1, true is stored in my data and otherwise false.
+				// Then I store each converted element that is in binary. If my column variable is equal to my width, then that moves to the next a, and I reset column to zero for the rest. Finally when there is a 1, true is stored in my data and otherwise false.
 			}
 		}
 	}
@@ -152,10 +152,11 @@ func (pbm *PBM) Save(filename string) error {
 	defer file.Close()
 
 	fmt.Fprintf(file, "%s\n%d %d\n", pbm.magicNumber, pbm.width, pbm.height)
+	// For the save function, I start by opening my save file and checking if there is an error. Then I write the necessary information in the file.
 
 	if pbm.magicNumber == "P1" {
-		for _, row := range pbm.data {
-			for _, pixel := range row {
+		for _, a := range pbm.data {
+			for _, pixel := range a {
 				if pixel {
 					fmt.Fprint(file, "1 ")
 				} else {
@@ -164,11 +165,12 @@ func (pbm *PBM) Save(filename string) error {
 			}
 			fmt.Fprintln(file)
 		}
+		// If the magic number is P1, I browse my data. If in my data there is a true, a 1 is written otherwise a 0.
 	} else if pbm.magicNumber == "P4" {
 
-		for _, row := range pbm.data {
+		for _, a := range pbm.data {
 			bytes := make([]byte, (pbm.width+7)/8)
-			for i, pixel := range row {
+			for i, pixel := range a {
 				if pixel {
 					bitIndex := i % 8
 					byteIndex := i / 8
