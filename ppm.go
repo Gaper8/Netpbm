@@ -271,7 +271,6 @@ func (ppm *PPM) DrawLine(p1, p2 Point, color Pixel) {
 		}
 	}
 }
-
 func (ppm *PPM) DrawRectangle(p1 Point, width, height int, color Pixel) {
 }
 
