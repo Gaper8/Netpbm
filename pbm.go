@@ -136,9 +136,13 @@ func (pbm *PBM) At(x, y int) bool {
 	return pbm.data[y][x]
 }
 
+// For the At function I start by checking that my x and y coordinates are not outside my image. If the coordinates are included in the dimensions of my image then I return the coordinates of the pixel.
+
 func (pbm *PBM) Set(x, y int, value bool) {
 	pbm.data[y][x] = value
 }
+
+// The Set function allows you to modify the value of a pixel. For this I give the location of the pixel and I change its value by assigning it the new value given as a parameter with value.
 
 func (pbm *PBM) Save(filename string) error {
 	file, err := os.Create(filename)
@@ -186,6 +190,8 @@ func (pbm *PBM) Invert() {
 	}
 }
 
+// For Invert, I start by iterating over the height and width of my image. Then I just inverted the value of each pixel at coordinates i and j. It's the ! which has the role of doing the inversion.
+
 func (pbm *PBM) Flip() {
 	var division int = (pbm.width / 2)
 	var a bool
@@ -197,6 +203,8 @@ func (pbm *PBM) Flip() {
 		}
 	}
 }
+
+// The Flip function is used to invert the image horizontally. To do this, I start by knowing how far I need to invert my data. This is the role of the division variable. Then all that remains is to swap the opposing points. For this we take the starting point and we invert it with the point at the same height but for the width we do width minus j (the value of our point) - 1 to be in agreement with the programming index which begins a 0. Then we take the index of our opposite point which we replace with a, which is the starting point.
 
 func (pbm *PBM) Flop() {
 	var division int = (pbm.height / 2)
@@ -210,6 +218,10 @@ func (pbm *PBM) Flop() {
 	}
 }
 
+// The Flop function is used to invert the image vertically. To do this, I start by knowing how far I need to invert my data. This is the role of the division variable. Then all that remains is to swap the opposing points. For this we take the starting point and we invert it with the point at the same width but for the height we do height minus j (the value of our point) - 1 to be in agreement with the programming index which begins a 0. Then we take the index of our opposite point which we replace with a, which is the starting point.
+
 func (pbm *PBM) SetMagicNumber(magicNumber string) {
 	pbm.magicNumber = magicNumber
 }
+
+// This function allows me to change the value of the magic number by changing it to the value in the function parameter.
