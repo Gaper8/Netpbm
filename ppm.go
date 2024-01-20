@@ -158,7 +158,17 @@ func (ppm *PPM) SetMagicNumber(magicNumber string) {
 }
 
 func (ppm *PPM) SetMaxValue(maxValue uint8) {
-	ppm.max = maxValue
+	if ppm.max != maxValue {
+		pasdidee := float64(maxValue) / float64(ppm.max)
+		ppm.max = maxValue
+		for i := 0; i < len(ppm.data); i++ {
+			for j := 0; j < len(ppm.data[i]); j++ {
+				ppm.data[i][j].R = uint8(float64(ppm.data[i][j].R) * pasdidee)
+				ppm.data[i][j].G = uint8(float64(ppm.data[i][j].G) * pasdidee)
+				ppm.data[i][j].B = uint8(float64(ppm.data[i][j].B) * pasdidee)
+			}
+		}
+	}
 }
 
 func (ppm *PPM) Rotate90CW() {
@@ -228,50 +238,69 @@ type Point struct {
 
 func (ppm *PPM) DrawLine(p1, p2 Point, color Pixel) {
 
-	X := p2.X - p1.X
-	if X < 0 {
-		X = -X
+	deltaX := p2.X - p1.X
+	if deltaX < 0 {
+		deltaX = -deltaX
 	}
 
-	Y := p2.Y - p1.Y
-	if Y < 0 {
-		Y = -Y
+	deltaY := p2.Y - p1.Y
+	if deltaY < 0 {
+		deltaY = -deltaY
 	}
 
-	pointX := -1
+	signX := -1
 	if p1.X < p2.X {
-		pointX = 1
+		signX = 1
 	}
 
-	pointY := -1
+	signY := -1
 	if p1.Y < p2.Y {
-		pointY = 1
+		signY = 1
 	}
 
-	err := X - Y
+	err := deltaX - deltaY
 
 	for {
+		if p1.X >= 0 && p1.X < ppm.width && p1.Y >= 0 && p1.Y < ppm.height {
 
-		ppm.Set(p1.X, p1.Y, color)
-
-		err2 := 2 * err
-
-		if err2 > -Y {
-			err -= Y
-			p1.X += pointX
-		}
-
-		if err2 < X {
-			err += X
-			p1.Y += pointY
+			ppm.Set(p1.X, p1.Y, color)
 		}
 
 		if p1.X == p2.X && p1.Y == p2.Y {
 			break
 		}
+
+		err2 := 2 * err
+
+		if err2 > -deltaY {
+			err -= deltaY
+			p1.X += signX
+		}
+
+		if err2 < deltaX {
+			err += deltaX
+			p1.Y += signY
+		}
+
+		if p1.X < 0 || p1.X >= ppm.width || p1.Y < 0 || p1.Y >= ppm.height {
+			break
+		}
 	}
 }
 func (ppm *PPM) DrawRectangle(p1 Point, width, height int, color Pixel) {
+
+	if width <= 0 || height <= 0 || p1.X < 0 || p1.X >= ppm.width || p1.Y < 0 || p1.Y >= ppm.height {
+		return
+	}
+
+	p2 := Point{p1.X + width, p1.Y}
+	p3 := Point{p1.X + width, p1.Y + height}
+	p4 := Point{p1.X, p1.Y + height}
+
+	ppm.DrawLine(p1, p2, color)
+	ppm.DrawLine(p2, p3, color)
+	ppm.DrawLine(p3, p4, color)
+	ppm.DrawLine(p4, p1, color)
 }
 
 func (ppm *PPM) DrawFilledRectangle(p1 Point, width, height int, color Pixel) {
