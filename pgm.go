@@ -107,8 +107,6 @@ func (pgm *PGM) Size() (int, int) {
 // The size function has pasdidee pointer to the PGM structure, so to return the width and height, I just have to return the width and height of the PGM structure.
 
 func (pgm *PGM) At(x, y int) uint8 {
-	if x < 0 || x > pgm.width || y < 0 || y > pgm.height {
-	}
 	return pgm.data[y][x]
 }
 

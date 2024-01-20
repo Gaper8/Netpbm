@@ -77,9 +77,10 @@ func ReadPPM(filename string) (*PPM, error) {
 				}
 				lineone++
 			}
-		}
-		if PPMfor.magicNumber == "P6" {
 
+			if PPMfor.magicNumber == "P6" {
+				//fioua
+			}
 		}
 	}
 
@@ -95,8 +96,6 @@ func (ppm *PPM) Size() (int, int) {
 }
 
 func (ppm *PPM) At(x, y int) Pixel {
-	if x < 0 || x > ppm.width || y < 0 || y > ppm.height {
-	}
 	return ppm.data[y][x]
 }
 
@@ -289,8 +288,21 @@ func (ppm *PPM) DrawLine(p1, p2 Point, color Pixel) {
 }
 func (ppm *PPM) DrawRectangle(p1 Point, width, height int, color Pixel) {
 
-	if width <= 0 || height <= 0 || p1.X < 0 || p1.X >= ppm.width || p1.Y < 0 || p1.Y >= ppm.height {
+	if width <= 0 || height <= 0 || p1.X < 0 || p1.Y < 0 || p1.X >= ppm.width || p1.Y >= ppm.height {
 		return
+	}
+	if p1.X < 0 {
+		p1.X = 0
+	}
+	if p1.Y < 0 {
+		p1.Y = 0
+	}
+
+	if p1.X+width > ppm.width {
+		width = ppm.width - p1.X
+	}
+	if p1.Y+height > ppm.height {
+		height = ppm.height - p1.Y
 	}
 
 	p2 := Point{p1.X + width, p1.Y}
@@ -304,6 +316,11 @@ func (ppm *PPM) DrawRectangle(p1 Point, width, height int, color Pixel) {
 }
 
 func (ppm *PPM) DrawFilledRectangle(p1 Point, width, height int, color Pixel) {
+	for i := 0; i < height; i++ {
+		beginning := Point{p1.X, p1.Y + i}
+		end := Point{p1.X + width, p1.Y + i}
+		ppm.DrawLine(beginning, end, color)
+	}
 }
 
 func (ppm *PPM) DrawCircle(center Point, radius int, color Pixel) {
@@ -315,7 +332,9 @@ func (ppm *PPM) DrawFilledCircle(center Point, radius int, color Pixel) {
 }
 
 func (ppm *PPM) DrawTriangle(p1, p2, p3 Point, color Pixel) {
-	// ...
+	ppm.DrawLine(p1, p2, color)
+	ppm.DrawLine(p2, p3, color)
+	ppm.DrawLine(p3, p1, color)
 }
 
 func (ppm *PPM) DrawFilledTriangle(p1, p2, p3 Point, color Pixel) {
@@ -323,7 +342,6 @@ func (ppm *PPM) DrawFilledTriangle(p1, p2, p3 Point, color Pixel) {
 }
 
 func (ppm *PPM) DrawPolygon(points []Point, color Pixel) {
-	// ...
 }
 
 func (ppm *PPM) DrawFilledPolygon(points []Point, color Pixel) {

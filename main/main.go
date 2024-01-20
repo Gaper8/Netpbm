@@ -6,6 +6,6 @@ import (
 
 func main() {
 
-	Netpbm.ReadPPM("blank.ppm")
+	Netpbm.ReadPPM("testP6.ppm")
 
 }
