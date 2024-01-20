@@ -3,6 +3,7 @@ package Netpbm
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -76,10 +77,24 @@ func ReadPPM(filename string) (*PPM, error) {
 					PPMfor.data[lineone][i] = Pixel{uint8(r), uint8(g), uint8(b)}
 				}
 				lineone++
-			}
 
-			if PPMfor.magicNumber == "P6" {
-				//fioua
+			} else if PPMfor.magicNumber == "P6" {
+				datappmrgb := make([]byte, PPMfor.width*PPMfor.height*3)
+				file, _ := os.ReadFile(filename)
+				if err != nil {
+					return nil, nil
+				}
+				copy(datappmrgb, file[len(file)-(PPMfor.width*PPMfor.height*3):])
+				pixel := 0
+				for y := 0; y < PPMfor.height; y++ {
+					for x := 0; x < PPMfor.width; x++ {
+						PPMfor.data[y][x].R = datappmrgb[pixel]
+						PPMfor.data[y][x].G = datappmrgb[pixel+1]
+						PPMfor.data[y][x].B = datappmrgb[pixel+2]
+						pixel += 3
+					}
+				}
+				break
 			}
 		}
 	}
@@ -90,9 +105,7 @@ func ReadPPM(filename string) (*PPM, error) {
 }
 
 func (ppm *PPM) Size() (int, int) {
-	width, height := ppm.height, ppm.width
-	fmt.Printf("Largeur: %d, Hauteur: %d\n", width, height)
-	return width, height
+	return ppm.width, ppm.height
 }
 
 func (ppm *PPM) At(x, y int) Pixel {
@@ -104,17 +117,27 @@ func (ppm *PPM) Set(x, y int, value Pixel) {
 }
 
 func (ppm *PPM) Save(filename string) error {
-	file, _ := os.Create(filename)
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
 	defer file.Close()
 
 	fmt.Fprintf(file, "%s\n%d %d\n%d\n", ppm.magicNumber, ppm.width, ppm.height, ppm.max)
 
-	for _, i := range ppm.data {
-		for _, j := range i {
-			fmt.Fprintf(file, "%d %d %d ", j.R, j.G, j.B)
+	for _, riri := range ppm.data {
+		if ppm.magicNumber == "P3" {
+			for _, fifi := range riri {
+				fmt.Fprintf(file, "%d %d %d ", fifi.R, fifi.G, fifi.B)
+			}
+			fmt.Fprintln(file)
+		} else if ppm.magicNumber == "P6" {
+			for _, loulou := range riri {
+				file.Write([]byte{loulou.R, loulou.G, loulou.B})
+			}
 		}
-		fmt.Fprintln(file)
 	}
+
 	return nil
 }
 
@@ -129,7 +152,7 @@ func (ppm *PPM) Invert() {
 }
 
 func (ppm *PPM) Flip() {
-	var division int = (ppm.width / 2)
+	division := (ppm.width / 2)
 	var a Pixel
 	for i := 0; i < ppm.height; i++ {
 		for j := 0; j < division; j++ {
@@ -141,7 +164,7 @@ func (ppm *PPM) Flip() {
 }
 
 func (ppm *PPM) Flop() {
-	var division int = (ppm.height / 2)
+	division := (ppm.height / 2)
 	var a Pixel
 	for i := 0; i < ppm.width; i++ {
 		for j := 0; j < division; j++ {
@@ -201,8 +224,8 @@ func (ppm *PPM) ToPGM() *PGM {
 
 	for y := 0; y < ppm.height; y++ {
 		for x := 0; x < ppm.width; x++ {
-			brightness := uint8(0.299*float64(ppm.data[y][x].R) + 0.587*float64(ppm.data[y][x].G) + 0.114*float64(ppm.data[y][x].B))
-			pgm.data[y][x] = brightness
+			gray := uint8((int(ppm.data[y][x].R) + int(ppm.data[y][x].G) + int(ppm.data[y][x].B)) / 3)
+			pgm.data[y][x] = gray
 		}
 	}
 
@@ -237,27 +260,27 @@ type Point struct {
 
 func (ppm *PPM) DrawLine(p1, p2 Point, color Pixel) {
 
-	deltaX := p2.X - p1.X
-	if deltaX < 0 {
-		deltaX = -deltaX
+	X := p2.X - p1.X
+	if X < 0 {
+		X = -X
 	}
 
-	deltaY := p2.Y - p1.Y
-	if deltaY < 0 {
-		deltaY = -deltaY
+	Y := p2.Y - p1.Y
+	if Y < 0 {
+		Y = -Y
 	}
 
-	signX := -1
+	Xv2 := -1
 	if p1.X < p2.X {
-		signX = 1
+		Xv2 = 1
 	}
 
-	signY := -1
+	Yv2 := -1
 	if p1.Y < p2.Y {
-		signY = 1
+		Yv2 = 1
 	}
 
-	err := deltaX - deltaY
+	err := X - Y
 
 	for {
 		if p1.X >= 0 && p1.X < ppm.width && p1.Y >= 0 && p1.Y < ppm.height {
@@ -271,14 +294,14 @@ func (ppm *PPM) DrawLine(p1, p2 Point, color Pixel) {
 
 		err2 := 2 * err
 
-		if err2 > -deltaY {
-			err -= deltaY
-			p1.X += signX
+		if err2 > -Y {
+			err -= Y
+			p1.X += Xv2
 		}
 
-		if err2 < deltaX {
-			err += deltaX
-			p1.Y += signY
+		if err2 < X {
+			err += X
+			p1.Y += Yv2
 		}
 
 		if p1.X < 0 || p1.X >= ppm.width || p1.Y < 0 || p1.Y >= ppm.height {
@@ -324,11 +347,29 @@ func (ppm *PPM) DrawFilledRectangle(p1 Point, width, height int, color Pixel) {
 }
 
 func (ppm *PPM) DrawCircle(center Point, radius int, color Pixel) {
-	// ...
+
+	for x := 0; x < ppm.height; x++ {
+		for y := 0; y < ppm.width; y++ {
+			dx := float64(x) - float64(center.X)
+			dy := float64(y) - float64(center.Y)
+			distance := math.Sqrt(dx*dx + dy*dy)
+
+			if math.Abs(distance-float64(radius)) < 1.0 && distance < float64(radius) {
+				ppm.Set(x, y, color)
+			}
+		}
+	}
+	ppm.Set(center.X-(radius-1), center.Y, color)
+	ppm.Set(center.X+(radius-1), center.Y, color)
+	ppm.Set(center.X, center.Y+(radius-1), color)
+	ppm.Set(center.X, center.Y-(radius-1), color)
 }
 
 func (ppm *PPM) DrawFilledCircle(center Point, radius int, color Pixel) {
-	// ...
+	for radius >= 0 {
+		ppm.DrawCircle(center, radius, color)
+		radius--
+	}
 }
 
 func (ppm *PPM) DrawTriangle(p1, p2, p3 Point, color Pixel) {
@@ -338,14 +379,49 @@ func (ppm *PPM) DrawTriangle(p1, p2, p3 Point, color Pixel) {
 }
 
 func (ppm *PPM) DrawFilledTriangle(p1, p2, p3 Point, color Pixel) {
-	// ...
+	for p1 != p2 {
+		ppm.DrawLine(p3, p1, color)
+		if p1.X != p2.X && p1.X < p2.X {
+			p1.X++
+		} else if p1.X != p2.X && p1.X > p2.X {
+			p1.X--
+		}
+		if p1.Y != p2.Y && p1.Y < p2.Y {
+			p1.Y++
+		} else if p1.Y != p2.Y && p1.Y > p2.Y {
+			p1.Y--
+		}
+	}
+	ppm.DrawLine(p3, p1, color)
 }
 
 func (ppm *PPM) DrawPolygon(points []Point, color Pixel) {
+	sizepolygon := len(points)
+
+	for i := 0; i < sizepolygon-1; i++ {
+		ppm.DrawLine(points[i], points[i+1], color)
+	}
+	ppm.DrawLine(points[sizepolygon-1], points[0], color)
 }
 
 func (ppm *PPM) DrawFilledPolygon(points []Point, color Pixel) {
-	// ...
+	ppm.DrawPolygon(points, color)
+	for i := 0; i < ppm.height; i++ {
+		var placepixel []int
+		var nombrepixels int
+		for j := 0; j < ppm.width; j++ {
+			if ppm.data[i][j] == color {
+				nombrepixels += 1
+				placepixel = append(placepixel, j)
+			}
+		}
+		if nombrepixels > 1 {
+			for a := placepixel[0] + 1; a < placepixel[len(placepixel)-1]; a++ {
+				ppm.data[i][a] = color
+
+			}
+		}
+	}
 }
 
 func (ppm *PPM) DrawKochSnowflake(n int, start Point, width int, color Pixel) {
