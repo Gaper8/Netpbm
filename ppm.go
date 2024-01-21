@@ -20,6 +20,7 @@ type Pixel struct {
 	R, G, B uint8
 }
 
+// This function takes an image of type pppm as PPM parameter and returns PPM structure that represents the image.
 func ReadPPM(filename string) (*PPM, error) {
 	PPMfor := PPM{}
 
@@ -29,6 +30,7 @@ func ReadPPM(filename string) (*PPM, error) {
 		return nil, err
 	}
 	defer file.Close()
+	// I create PGMfor variable and assign the PPM structure to it. Then I open my file and show an error if the file does not open.
 
 	scanner := bufio.NewScanner(file)
 
@@ -37,12 +39,16 @@ func ReadPPM(filename string) (*PPM, error) {
 	booleaheight := false
 	lineone := 0
 
+	// I create and initialize five variables
+
 	for scanner.Scan() {
 		if strings.HasPrefix(scanner.Text(), "#") {
 			continue
+			// I scan my file and if the lines start with # it continues, to ignore them.
 		} else if !booleasix {
 			PPMfor.magicNumber = (scanner.Text())
 			booleasix = true
+			// Here, if there is no # it goes to this else if and we enter it if my booleasix variable is false. So I assign the line read to my PGMfor.magicNumber variable. And then I set my booleasix variable to true to no longer enter this condition.
 		} else if !booleaseven {
 			size := strings.Split(scanner.Text(), " ")
 			PPMfor.width, err = strconv.Atoi(size[0])
@@ -54,11 +60,13 @@ func ReadPPM(filename string) (*PPM, error) {
 				return nil, err
 			}
 			booleaseven = true
+			// Same here I enter this condition if booleaseven is false. Then I take the line that the scanner reads and I separate the data, with the space. Then I convert the first data into an integer which I assign to the width variable. I do the same for height. Then I set booleaseven to true to no longer enter this condition.
 
 			PPMfor.data = make(([][]Pixel), PPMfor.height)
 			for i := range PPMfor.data {
 				PPMfor.data[i] = make(([]Pixel), PPMfor.width)
 			}
+			// Here I just initialize the matrix, my data array with the width and height that I retrieve above.
 		} else if !booleaheight {
 			max, err := strconv.Atoi(scanner.Text())
 			if err != nil {
@@ -66,6 +74,7 @@ func ReadPPM(filename string) (*PPM, error) {
 			}
 			PPMfor.max = uint8(max)
 			booleaheight = true
+			// Here I also use an else if with booleaheight false to enter the condition. Then I convert the read line and I assign this conversion to the max variable. Then I convert max to uint8 and assign it to PGMfor.max. Finally booleaheight changes to true to no longer enter the condition.
 		} else {
 
 			if PPMfor.magicNumber == "P3" {
@@ -77,7 +86,7 @@ func ReadPPM(filename string) (*PPM, error) {
 					PPMfor.data[lineone][i] = Pixel{uint8(r), uint8(g), uint8(b)}
 				}
 				lineone++
-
+				// Here to enter this condition I start by checking if the magic number is p3, if this is the case I start by separating each character that the scanner reads. Then I travel my width. Then I make sure to know the index of each pixel, since they go from three to three. The calculation therefore helps me to know the first index of the first pixel and then we go from three to three to recover each value. Afterwards I just assign the data to the PPMfor.data variable.
 			} else if PPMfor.magicNumber == "P6" {
 				datappmrgb := make([]byte, PPMfor.width*PPMfor.height*3)
 				file, _ := os.ReadFile(filename)
@@ -98,23 +107,30 @@ func ReadPPM(filename string) (*PPM, error) {
 			}
 		}
 	}
+	// Well here, if we don't fit into p3 we'll fit into p6. I start by creating a byte array of the size width multiplied by height multiplied by three for the rgb. Then I read the file and store it in file. Then I retrieve the binary data from the file in my datppmrgb variable. Then I iterate over my width and height. Finally I retrieve each pixel value from my datappmrgb data and I put them in the correct pixel of the PPMfor.data matrix. and of course I don't forget to increment pixel by three because a pixel has three values.
 
 	fmt.Printf("%+v\n", PPMfor)
 	return &PPM{PPMfor.data, PPMfor.width, PPMfor.height, PPMfor.magicNumber, PPMfor.max}, nil
-
+	// I return PPMfor struct to my PPM pointer which contains all the image data.
 }
 
 func (ppm *PPM) Size() (int, int) {
 	return ppm.width, ppm.height
 }
 
+// The size function has PPM pointer to the PPM structure, so to return the width and height, I just have to return the width and height of the PPM structure.
+
 func (ppm *PPM) At(x, y int) Pixel {
 	return ppm.data[y][x]
 }
 
+// For the At function I start by checking that my x and y coordinates are not outside my image. If the coordinates are included in the dimensions of my image then I return the coordinates of the pixel.
+
 func (ppm *PPM) Set(x, y int, value Pixel) {
 	ppm.data[y][x] = value
 }
+
+// The Set function allows you to modify the value of pixel. For this I give the location of the pixel and I change its value by assigning it the new value given as parameter with value.
 
 func (ppm *PPM) Save(filename string) error {
 	file, err := os.Create(filename)
@@ -141,6 +157,8 @@ func (ppm *PPM) Save(filename string) error {
 	return nil
 }
 
+// I start by creating a save file. Then I enter the necessary information (height, width, magic number, max). Then, I browse my data, if it is p3 I enter the condition and I browse the pixels of the line and I enter the pixel values. If the magic number is p6, I scan the pixels again but this time the pixel values are written in binary format with file.Write.
+
 func (ppm *PPM) Invert() {
 	for i := 0; i < ppm.height; i++ {
 		for j := 0; j < ppm.width; j++ {
@@ -150,6 +168,8 @@ func (ppm *PPM) Invert() {
 		}
 	}
 }
+
+// I start by going through the height and width then to invert the values I assign the position i, j of my value to the opposite position by subtracting the amx from the current value. I do this for each component (r,g,b) of the pixel.
 
 func (ppm *PPM) Flip() {
 	division := (ppm.width / 2)
@@ -163,6 +183,8 @@ func (ppm *PPM) Flip() {
 	}
 }
 
+// The Flip function is used to invert the image horizontally. To do this, I start by knowing how far I need to invert my data. This is the role of the division variable. Then all that remains is to swap the opposing points. For this we take the starting point and we invert it with the point at the same height but for the width we do width minus j (the value of our point) - 1 to be in agreement with the programming index which begins  0. Then we take the index of our opposite point which we replace with the opposite point which we store in pasdidee.
+
 func (ppm *PPM) Flop() {
 	division := (ppm.height / 2)
 	var a Pixel
@@ -175,9 +197,13 @@ func (ppm *PPM) Flop() {
 	}
 }
 
+// The Flop function is used to invert the image vertically. To do this, I start by knowing how far I need to invert my data. This is the role of the division variable. Then all that remains is to swap the opposing points. For this we take the starting point and we invert it with the point at the same width but for the height we do height minus j (the value of our point) - 1 to be in agreement with the programming index which begins 0. Then we take the index of our opposite point which we replace with pasdidee, which is the starting point.
+
 func (ppm *PPM) SetMagicNumber(magicNumber string) {
 	ppm.magicNumber = magicNumber
 }
+
+// This function allows me to change the value of the magic number by changing it to the value in the function parameter.
 
 func (ppm *PPM) SetMaxValue(maxValue uint8) {
 	if ppm.max != maxValue {
@@ -192,6 +218,8 @@ func (ppm *PPM) SetMaxValue(maxValue uint8) {
 		}
 	}
 }
+
+// For setmaxvalue I start by checking that the value of the max from the beginning and the new one is not the same, then I calculate the value which will allow me to change the value of the components. To divide the new max with the old one I store in pasdidee, the float64 is used to have a precise calculation. Then I go through each pixel of the data matrix. Finally, to have the change in data value in accordance with the max I multiply the value at location i,j by pasdidee, and I convert to uint8.
 
 func (ppm *PPM) Rotate90CW() {
 	datav2 := make([][]Pixel, ppm.width)
@@ -208,6 +236,8 @@ func (ppm *PPM) Rotate90CW() {
 	ppm.width, ppm.height = ppm.height, ppm.width
 	ppm.data = datav2
 }
+
+// The RotateCW function allows you to rotate the image by degrees. To do this I start by creating a new matrix to be able to change the data between our two matrices. Then I iterate over the height and width. Then, I take pixel at its base position and so that it rotates 90 degrees the width becomes the height in the new data and vice versa but in addition for the height of datav2 I do calculation to have the new location of the value.
 
 func (ppm *PPM) ToPGM() *PGM {
 	pgm := &PGM{
@@ -232,6 +262,8 @@ func (ppm *PPM) ToPGM() *PGM {
 	return pgm
 }
 
+// I start by storing the PGM struct in my pgm variable. Then I create a new matrix. Then I go through each pixel of the image, and I calculate the average brightness of an entire pixel, for that I take each value I add them and I divide everything by 3. To finish I attribute the average gray value to the pixel of my data.
+
 func (ppm *PPM) ToPBM() *PBM {
 	pbm := &PBM{
 		width:       ppm.width,
@@ -254,9 +286,13 @@ func (ppm *PPM) ToPBM() *PBM {
 	return pbm
 }
 
+// I start by storing the PBM struct in my pbm variable. Then I create a new matrix. I scan each pixel in height and width. Then, I calculate the average value of a pixel by adding each value and dividing by 3. Then I assign my data the value true if the average of my pixel is greater than the max divided by 2.
+
 type Point struct {
 	X, Y int
 }
+
+// I create a Point structure with x and y ints.
 
 func (ppm *PPM) DrawLine(p1, p2 Point, color Pixel) {
 
@@ -270,43 +306,57 @@ func (ppm *PPM) DrawLine(p1, p2 Point, color Pixel) {
 		Y = -Y
 	}
 
-	Xv2 := -1
-	if p1.X < p2.X {
-		Xv2 = 1
-	}
+	// These two conditions are used to calculate the margin of our line and also to know the direction in which we must go, thanks to the absolute value.
 
-	Yv2 := -1
-	if p1.Y < p2.Y {
-		Yv2 = 1
+	Xv2 := -1 // In this case from right to left.
+	if p1.X < p2.X {
+		Xv2 = 1 // In this case, left to right.
 	}
+	// Then to be precise we want to know if our line should be drawn from right to left or vice versa.
+
+	Yv2 := -1 // In this case from top to bottom.
+	if p1.Y < p2.Y {
+		Yv2 = 1 // In this case from bottom to top.
+	}
+	// And of course we also want to know here if the line will be drawn from top to bottom or from bottom to top.
 
 	err := X - Y
 
 	for {
+		// Check that the pixel is within the image boundaries
 		if p1.X >= 0 && p1.X < ppm.width && p1.Y >= 0 && p1.Y < ppm.height {
 
 			ppm.Set(p1.X, p1.Y, color)
 		}
+		// Here we color the pixel
 
 		if p1.X == p2.X && p1.Y == p2.Y {
 			break
 		}
+		// If the coloring is finished we break, since the loop no longer needs to be continued.
 
 		err2 := 2 * err
 
+		// This variable is used to determine when we need to move in the direction of Y
+
 		if err2 > -Y {
 			err -= Y
-			p1.X += Xv2
+			p1.X += Xv2 // and we move forward
 		}
+
+		// If err2 is greater than the opposite of Y, we must move in the X direction
 
 		if err2 < X {
 			err += X
-			p1.Y += Yv2
+			p1.Y += Yv2 // and we move forward
 		}
+
+		// If err2 is greater than the opposite of X, we must move in the Y direction
 
 		if p1.X < 0 || p1.X >= ppm.width || p1.Y < 0 || p1.Y >= ppm.height {
 			break
 		}
+		// Finally, we check that the point is indeed within the limit of the image
 	}
 }
 func (ppm *PPM) DrawRectangle(p1 Point, width, height int, color Pixel) {
@@ -314,12 +364,17 @@ func (ppm *PPM) DrawRectangle(p1 Point, width, height int, color Pixel) {
 	if width <= 0 || height <= 0 || p1.X < 0 || p1.Y < 0 || p1.X >= ppm.width || p1.Y >= ppm.height {
 		return
 	}
+
+	// I check if the coordinates are outside the image boundaries.
+
 	if p1.X < 0 {
 		p1.X = 0
 	}
 	if p1.Y < 0 {
 		p1.Y = 0
 	}
+
+	// Here I adjust the coordinates are negative. If so I adjust to zero.
 
 	if p1.X+width > ppm.width {
 		width = ppm.width - p1.X
@@ -328,14 +383,20 @@ func (ppm *PPM) DrawRectangle(p1 Point, width, height int, color Pixel) {
 		height = ppm.height - p1.Y
 	}
 
+	// Here I adjust the width and height. If this data is outside the limits of the image I reduce it to avoid overflow.
+
 	p2 := Point{p1.X + width, p1.Y}
 	p3 := Point{p1.X + width, p1.Y + height}
 	p4 := Point{p1.X, p1.Y + height}
+
+	// Create the 3 corners of the rectangle
 
 	ppm.DrawLine(p1, p2, color)
 	ppm.DrawLine(p2, p3, color)
 	ppm.DrawLine(p3, p4, color)
 	ppm.DrawLine(p4, p1, color)
+
+	// We link them all so as to make a loop
 }
 
 func (ppm *PPM) DrawFilledRectangle(p1 Point, width, height int, color Pixel) {
@@ -345,6 +406,8 @@ func (ppm *PPM) DrawFilledRectangle(p1 Point, width, height int, color Pixel) {
 		ppm.DrawLine(beginning, end, color)
 	}
 }
+
+//I start by scanning the height. I initialize beginning which stores the position of the start of the line (p1.X for the abscissa and p1.Y + 1 as the ordinate. And the variable end bas is the same principle but for the end. Finally, I have just call drawline to draw a line between beginnig and end.
 
 func (ppm *PPM) DrawCircle(center Point, radius int, color Pixel) {
 
@@ -365,6 +428,8 @@ func (ppm *PPM) DrawCircle(center Point, radius int, color Pixel) {
 	ppm.Set(center.X, center.Y-(radius-1), color)
 }
 
+// I start by going through each pixel of the image by traversing the height and width. Then I calculate the distance between the center of the circle and each pixel. Then, if the distance of a pixel is very close to the radius of the circle and the overall distance is less than the radius of the circle, then I color that pixel. Finally, I color four additional pixels, which are the edges of the circle.
+
 func (ppm *PPM) DrawFilledCircle(center Point, radius int, color Pixel) {
 	for radius >= 0 {
 		ppm.DrawCircle(center, radius, color)
@@ -372,11 +437,15 @@ func (ppm *PPM) DrawFilledCircle(center Point, radius int, color Pixel) {
 	}
 }
 
+// Here I call my drawcircle function which draws a circle of the specified size then I decrement the radius so that with each iteration a smaller circle is drawn until the radius is no longer >= 0.
+
 func (ppm *PPM) DrawTriangle(p1, p2, p3 Point, color Pixel) {
 	ppm.DrawLine(p1, p2, color)
 	ppm.DrawLine(p2, p3, color)
 	ppm.DrawLine(p3, p1, color)
 }
+
+// Here it's very simple, I call drawline so that it draws lines between each point of the triangle as a parameter.
 
 func (ppm *PPM) DrawFilledTriangle(p1, p2, p3 Point, color Pixel) {
 	for p1 != p2 {
@@ -395,6 +464,8 @@ func (ppm *PPM) DrawFilledTriangle(p1, p2, p3 Point, color Pixel) {
 	ppm.DrawLine(p3, p1, color)
 }
 
+// To color the triangle what I do is that as long as p1 is not equal to the coordinates of p2, a line is drawn between p1 and p3. So then I make sure that p1 relates to each iteration of p2. This solution has the effect of filling the triangle line by line with p3 as a reference point.
+
 func (ppm *PPM) DrawPolygon(points []Point, color Pixel) {
 	sizepolygon := len(points)
 
@@ -403,6 +474,8 @@ func (ppm *PPM) DrawPolygon(points []Point, color Pixel) {
 	}
 	ppm.DrawLine(points[sizepolygon-1], points[0], color)
 }
+
+// I start by storing in my sizepolygon variable how many points the polygon contains. Then I create a line between all points except the last one. The last point I draw outside the loop.
 
 func (ppm *PPM) DrawFilledPolygon(points []Point, color Pixel) {
 	ppm.DrawPolygon(points, color)
@@ -423,6 +496,8 @@ func (ppm *PPM) DrawFilledPolygon(points []Point, color Pixel) {
 		}
 	}
 }
+
+// I start by going through each row of the image in height. Then, I check and store in placepixel all the pixels already placed on the lines (the outline of the polygon) and of the right color. Finally, I fill the pixels inside the polygon.
 
 func (ppm *PPM) DrawKochSnowflake(n int, start Point, width int, color Pixel) {
 	// N is the number of iterations.
