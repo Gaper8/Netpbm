@@ -26,7 +26,7 @@ func ReadPPM(filename string) (*PPM, error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("Erreur lors de l'ouverture")
+		fmt.Println("Le fichier ne s'ouvre pas.")
 		return nil, err
 	}
 	defer file.Close()
@@ -109,7 +109,6 @@ func ReadPPM(filename string) (*PPM, error) {
 	}
 	// Well here, if we don't fit into p3 we'll fit into p6. I start by creating a byte array of the size width multiplied by height multiplied by three for the rgb. Then I read the file and store it in file. Then I retrieve the binary data from the file in my datppmrgb variable. Then I iterate over my width and height. Finally I retrieve each pixel value from my datappmrgb data and I put them in the correct pixel of the PPMfor.data matrix. and of course I don't forget to increment pixel by three because a pixel has three values.
 
-	fmt.Printf("%+v\n", PPMfor)
 	return &PPM{PPMfor.data, PPMfor.width, PPMfor.height, PPMfor.magicNumber, PPMfor.max}, nil
 	// I return PPMfor struct to my PPM pointer which contains all the image data.
 }
@@ -481,14 +480,14 @@ func (ppm *PPM) DrawFilledPolygon(points []Point, color Pixel) {
 	ppm.DrawPolygon(points, color)
 	for i := 0; i < ppm.height; i++ {
 		var placepixel []int
-		var nombrepixels int
+		var numberpixels int
 		for j := 0; j < ppm.width; j++ {
 			if ppm.data[i][j] == color {
-				nombrepixels += 1
+				numberpixels += 1
 				placepixel = append(placepixel, j)
 			}
 		}
-		if nombrepixels > 1 {
+		if numberpixels > 1 {
 			for a := placepixel[0] + 1; a < placepixel[len(placepixel)-1]; a++ {
 				ppm.data[i][a] = color
 
