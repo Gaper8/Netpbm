@@ -15,7 +15,7 @@ type PGM struct {
 	max           uint8
 }
 
-// This function takes an image of type pgm as pasdidee parameter and returns pasdidee structure that represents the image.
+// This function takes an image of type pgm as PGM parameter and returns PGM structure that represents the image.
 func ReadPGM(filename string) (*PGM, error) {
 	PGMthree := PGM{}
 
@@ -25,7 +25,7 @@ func ReadPGM(filename string) (*PGM, error) {
 		return nil, err
 	}
 	defer file.Close()
-	// I create pasdidee variable and assign the PGM structure to it. Then I open my file and show an error if the file does not open.
+	// I create PGMthree variable and assign the PGM structure to it. Then I open my file and show an error if the file does not open.
 
 	scanner := bufio.NewScanner(file)
 
@@ -39,7 +39,7 @@ func ReadPGM(filename string) (*PGM, error) {
 	for scanner.Scan() {
 		if strings.HasPrefix(scanner.Text(), "#") {
 			continue
-			// I scan my file and if the lines start with pasdidee # it continues, to ignore them.
+			// I scan my file and if the lines start with # it continues, to ignore them.
 		} else if !booleathree {
 			PGMthree.magicNumber = (scanner.Text())
 			booleathree = true
@@ -69,7 +69,7 @@ func ReadPGM(filename string) (*PGM, error) {
 			}
 			PGMthree.max = uint8(max)
 			booleafive = true
-			// Here I also use an else if with booleafive pasdidee false to enter the condition. Then I convert the read line and I assign this conversion to the max variable. Then I convert max to uint8 and assign it to PGMthree.max. Finally booleafive changes to true to no longer enter the condition.
+			// Here I also use an else if with booleafive false to enter the condition. Then I convert the read line and I assign this conversion to the max variable. Then I convert max to uint8 and assign it to PGMthree.max. Finally booleafive changes to true to no longer enter the condition.
 		} else {
 
 			if PGMthree.magicNumber == "P2" {
@@ -94,17 +94,17 @@ func ReadPGM(filename string) (*PGM, error) {
 			}
 		}
 	}
-	// Here, if the magicnumber is not p2, it is p5 so we enter the condition. I initialize two variables, databyte contains pasdidee scanner which directly reads binary characters. I have two loops, one that runs the width and the other the height. Then I just assigned the databyte values to the location of PGMthree.data.
+	// Here, if the magicnumber is not p2, it is p5 so we enter the condition. I initialize two variables, databyte contains bytes scanner which directly reads binary characters. I have two loops, one that runs the width and the other the height. Then I just assigned the databyte values to the location of PGMthree.data.
 	fmt.Printf("%+v\n", PGMthree)
 	return &PGM{PGMthree.data, PGMthree.width, PGMthree.height, PGMthree.magicNumber, PGMthree.max}, nil
-	// I return pasdidee pointer to my PBM struct which contains all the image data.
+	// I return PGMthree struct to my PGM pointer which contains all the image data.
 }
 
 func (pgm *PGM) Size() (int, int) {
 	return pgm.width, pgm.height
 }
 
-// The size function has pasdidee pointer to the PGM structure, so to return the width and height, I just have to return the width and height of the PGM structure.
+// The size function has PGM pointer to the PGM structure, so to return the width and height, I just have to return the width and height of the PGM structure.
 
 func (pgm *PGM) At(x, y int) uint8 {
 	return pgm.data[y][x]
@@ -116,7 +116,7 @@ func (pgm *PGM) Set(x, y int, value uint8) {
 	pgm.data[y][x] = value
 }
 
-// The Set function allows you to modify the value of pasdidee pixel. For this I give the location of the pixel and I change its value by assigning it the new value given as pasdidee parameter with value.
+// The Set function allows you to modify the value of pixel. For this I give the location of the pixel and I change its value by assigning it the new value given as parameter with value.
 
 func (pgm *PGM) Save(filename string) error {
 	file, err := os.Create(filename)
@@ -166,7 +166,7 @@ func (pgm *PGM) Flip() {
 	}
 }
 
-// The Flip function is used to invert the image horizontally. To do this, I start by knowing how far I need to invert my data. This is the role of the division variable. Then all that remains is to swap the opposing points. For this we take the starting point and we invert it with the point at the same height but for the width we do width minus j (the value of our point) - 1 to be in agreement with the programming index which begins pasdidee 0. Then we take the index of our opposite point which we replace with pasdidee, which is the starting point.
+// The Flip function is used to invert the image horizontally. To do this, I start by knowing how far I need to invert my data. This is the role of the division variable. Then all that remains is to swap the opposing points. For this we take the starting point and we invert it with the point at the same height but for the width we do width minus j (the value of our point) - 1 to be in agreement with the programming index which begins  0. Then we take the index of our opposite point which we replace with the opposite point which we store in pasdidee.
 
 func (pgm *PGM) Flop() {
 	var division int = (pgm.height / 2)
@@ -180,7 +180,7 @@ func (pgm *PGM) Flop() {
 	}
 }
 
-// The Flop function is used to invert the image vertically. To do this, I start by knowing how far I need to invert my data. This is the role of the division variable. Then all that remains is to swap the opposing points. For this we take the starting point and we invert it with the point at the same width but for the height we do height minus j (the value of our point) - 1 to be in agreement with the programming index which begins pasdidee 0. Then we take the index of our opposite point which we replace with pasdidee, which is the starting point.
+// The Flop function is used to invert the image vertically. To do this, I start by knowing how far I need to invert my data. This is the role of the division variable. Then all that remains is to swap the opposing points. For this we take the starting point and we invert it with the point at the same width but for the height we do height minus j (the value of our point) - 1 to be in agreement with the programming index which begins 0. Then we take the index of our opposite point which we replace with pasdidee, which is the starting point.
 
 func (pgm *PGM) SetMagicNumber(magicNumber string) {
 	pgm.magicNumber = magicNumber
@@ -218,7 +218,7 @@ func (pgm *PGM) Rotate90CW() {
 	pgm.data = datav2
 }
 
-// The RotateCW function allows you to rotate the image by degrees. To do this I start by creating pasdidee new matrix to be able to change the data between our two matrices. Then I iterate over the height and width. Then, I take pasdidee pixel at its base position and so that it rotates 90 degrees the width becomes the height in the new data and vice versa but in addition for the height of datav2 I do pasdidee calculation to have the new location of the value.
+// The RotateCW function allows you to rotate the image by degrees. To do this I start by creating a new matrix to be able to change the data between our two matrices. Then I iterate over the height and width. Then, I take pixel at its base position and so that it rotates 90 degrees the width becomes the height in the new data and vice versa but in addition for the height of datav2 I do calculation to have the new location of the value.
 
 func (pgm *PGM) ToPBM() *PBM {
 	pbm := &PBM{
@@ -241,4 +241,4 @@ func (pgm *PGM) ToPBM() *PBM {
 	return pbm
 }
 
-// The ToPBM function converts pasdidee grayscale image to pasdidee black and white image. I start by putting pasdidee pointer to the pbm struct in pasdidee variable and I put back the values that interest me. I also create pasdidee new matrix. Then I iterate over the height and width. Finally, all I have to do is convert the gray pixels into black and white, so any pixel above half the max is white (true) otherwise black (false).
+// The ToPBM function converts grayscale image to black and white image. I start by putting pointer to the pbm struct in variable and I put back the values that interest me. I also create new matrix. Then I iterate over the height and width. Finally, all I have to do is convert the gray pixels into black and white, so any pixel above half the max is white (true) otherwise black (false).
