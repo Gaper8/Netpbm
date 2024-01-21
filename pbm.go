@@ -20,7 +20,7 @@ func ReadPBM(filename string) (*PBM, error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("Erreur lors de l'ouverture")
+		fmt.Println("Le fichier ne s'ouvre pas !")
 		return nil, err
 	}
 	defer file.Close()
@@ -103,7 +103,6 @@ func ReadPBM(filename string) (*PBM, error) {
 			}
 		}
 	}
-	fmt.Printf("%+v\n", PBMtwo)
 	return &PBM{PBMtwo.data, PBMtwo.width, PBMtwo.height, PBMtwo.magicNumber}, nil
 	// I return a pointer to my PBM struct which contains all the image data.
 }
