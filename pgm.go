@@ -21,7 +21,7 @@ func ReadPGM(filename string) (*PGM, error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("Erreur lors de l'ouverture")
+		fmt.Println("Le fichier ne s'ouvre pas.")
 		return nil, err
 	}
 	defer file.Close()
@@ -95,7 +95,7 @@ func ReadPGM(filename string) (*PGM, error) {
 		}
 	}
 	// Here, if the magicnumber is not p2, it is p5 so we enter the condition. I initialize two variables, databyte contains bytes scanner which directly reads binary characters. I have two loops, one that runs the width and the other the height. Then I just assigned the databyte values to the location of PGMthree.data.
-	fmt.Printf("%+v\n", PGMthree)
+
 	return &PGM{PGMthree.data, PGMthree.width, PGMthree.height, PGMthree.magicNumber, PGMthree.max}, nil
 	// I return PGMthree struct to my PGM pointer which contains all the image data.
 }
